@@ -81,4 +81,19 @@ public class Cliente {
     public void setEndereco(Endereco endereco) {
         this.endereco = endereco;
     }
+
+    @Override
+    public String toString() {
+        return "Cadastro Realizado, Abaixo segue as suas Informações: \n\n" + "Nome: " + nome + "\nTel: " + telefone
+                + "\nEmail: " + email
+                + "\nDN: " + dataNascimento + "\nCPF: " + cpf + "\n\nEndereço \n" + endereco;
+    }
+
+    public String msgAtualizacao() {
+        return "Foi Feito uma Alteração no seu Cadastro, Abaixo segue as Novas Informações: \n\n" + "Nome: " + nome
+                + "\nTel: " + telefone + "\nEmail: " + email
+                + "\nDN: " + dataNascimento + "\nCPF: " + cpf + "\n\nEndereço \n" + endereco;
+
+    }
+
 }

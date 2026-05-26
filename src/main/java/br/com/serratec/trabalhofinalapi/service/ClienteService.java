@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import br.com.serratec.trabalhofinalapi.config.MailConfig;
 import br.com.serratec.trabalhofinalapi.dto.ClienteRequestDTO;
 import br.com.serratec.trabalhofinalapi.handler.ClienteException;
 import br.com.serratec.trabalhofinalapi.handler.EnderecoException;
@@ -25,6 +26,9 @@ public class ClienteService {
 
     @Autowired
     private EnderecoRepository eRepository;
+
+    @Autowired
+    private MailConfig mailConfig;
 
     public Cliente inserir(ClienteRequestDTO dto) {
         Optional<Endereco> optEndereco = eRepository.findByCep(dto.getCep());
@@ -53,6 +57,8 @@ public class ClienteService {
         cliente.setDataNascimento(dto.getDataNascimento());
         cliente.setCpf(dto.getCpf());
         cliente.setEndereco(endereco);
+
+        mailConfig.enviarEmail(cliente.toString(),dto.getEmail(),"O seu Cadastro na | Oficina Tech | foi Realizado com Sucesso!");
 
         return repository.save(cliente);
     }
@@ -89,17 +95,20 @@ public class ClienteService {
             cliente.setCpf(dto.getCpf());
             cliente.setEndereco(endereco);
 
+            mailConfig.enviarEmail(cliente.msgAtualizacao(),dto.getEmail(),"Seu Cadastro na | Oficina Tech | foi Alterado com Sucesso!");
+
             return repository.save(cliente);
         }
 
         throw new ClienteException("Cliente não encontrado!");
     }
 
-    public Page<Cliente> listarPorPagina(Pageable pageable){
+    public Page<Cliente> listarPorPagina(Pageable pageable) {
         return repository.findAll(pageable);
     }
 
-    public Page<Cliente> listarPorNome(Pageable pageable, String nome){
+    public Page<Cliente> listarPorNome(Pageable pageable, String nome) {
         return repository.findByNomeContaining(pageable, nome);
     }
+
 }
