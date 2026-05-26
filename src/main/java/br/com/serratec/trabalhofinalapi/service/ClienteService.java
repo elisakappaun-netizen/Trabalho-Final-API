@@ -1,0 +1,105 @@
+package br.com.serratec.trabalhofinalapi.service;
+
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import br.com.serratec.trabalhofinalapi.dto.ClienteRequestDTO;
+import br.com.serratec.trabalhofinalapi.handler.ClienteException;
+import br.com.serratec.trabalhofinalapi.handler.EnderecoException;
+import br.com.serratec.trabalhofinalapi.model.Cliente;
+import br.com.serratec.trabalhofinalapi.model.Endereco;
+import br.com.serratec.trabalhofinalapi.repository.ClienteRepository;
+import br.com.serratec.trabalhofinalapi.repository.EnderecoRepository;
+
+@Service
+public class ClienteService {
+
+    @Autowired
+    private ClienteRepository repository;
+
+    @Autowired
+    private EnderecoRepository eRepository;
+
+    public Cliente inserir(ClienteRequestDTO dto) {
+        Optional<Endereco> optEndereco = eRepository.findByCep(dto.getCep());
+
+        Endereco endereco;
+
+        if (optEndereco.isPresent()) {
+            endereco = optEndereco.get();
+        } else {
+            RestTemplate restTemplate = new RestTemplate();
+            String url = "https://viacep.com.br/ws/" + dto.getCep() + "/json/";
+            Endereco enderecoViaCep = restTemplate.getForObject(url, Endereco.class);
+            if (enderecoViaCep == null) {
+                throw new EnderecoException("Cep não encontrado!");
+            }
+
+            enderecoViaCep.setCep(enderecoViaCep.getCep().replaceAll("-", ""));
+
+            endereco = eRepository.save(enderecoViaCep);
+        }
+
+        Cliente cliente = new Cliente();
+        cliente.setNome(dto.getNome());
+        cliente.setTelefone(dto.getTelefone());
+        cliente.setEmail(dto.getEmail());
+        cliente.setDataNascimento(dto.getDataNascimento());
+        cliente.setCpf(dto.getCpf());
+        cliente.setEndereco(endereco);
+
+        return repository.save(cliente);
+    }
+
+    public Cliente alterar(UUID id, ClienteRequestDTO dto) {
+        Optional<Cliente> findCliente = repository.findById(id);
+
+        if (findCliente.isPresent()) {
+            Cliente cliente = findCliente.get();
+
+            Optional<Endereco> optEndereco = eRepository.findByCep(dto.getCep());
+
+            Endereco endereco;
+
+            if (optEndereco.isPresent()) {
+                endereco = optEndereco.get();
+            } else {
+                RestTemplate restTemplate = new RestTemplate();
+                String url = "https://viacep.com.br/ws/" + dto.getCep() + "/json/";
+                Endereco enderecoViaCep = restTemplate.getForObject(url, Endereco.class);
+                if (enderecoViaCep == null) {
+                    throw new EnderecoException("Cep não encontrado!");
+                }
+
+                enderecoViaCep.setCep(enderecoViaCep.getCep().replaceAll("-", ""));
+
+                endereco = eRepository.save(enderecoViaCep);
+            }
+
+            cliente.setNome(dto.getNome());
+            cliente.setTelefone(dto.getTelefone());
+            cliente.setEmail(dto.getEmail());
+            cliente.setDataNascimento(dto.getDataNascimento());
+            cliente.setCpf(dto.getCpf());
+            cliente.setEndereco(endereco);
+
+            return repository.save(cliente);
+        }
+
+        throw new ClienteException("Cliente não encontrado!");
+    }
+
+    public Page<Cliente> listarPorPagina(Pageable pageable){
+        return repository.findAll(pageable);
+    }
+
+    public Page<Cliente> listarPorNome(Pageable pageable, String nome){
+        return repository.findByNomeContaining(pageable, nome);
+    }
+}
