@@ -1,7 +1,6 @@
 package br.com.serratec.trabalhofinalapi.service;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -63,7 +62,7 @@ public class ClienteService {
         return repository.save(cliente);
     }
 
-    public Cliente alterar(UUID id, ClienteRequestDTO dto) {
+    public Cliente alterar(Long id, ClienteRequestDTO dto) {
         Optional<Cliente> findCliente = repository.findById(id);
 
         if (findCliente.isPresent()) {

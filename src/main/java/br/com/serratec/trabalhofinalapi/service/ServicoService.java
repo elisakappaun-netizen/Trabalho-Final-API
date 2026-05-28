@@ -31,9 +31,4 @@ public class ServicoService {
 
     }
 
-    public Servico buscar(Long id){
-        Optional<Servico> servico = servicoRepository.findById(id);
-        return servico.get();
-    }
-
 }
