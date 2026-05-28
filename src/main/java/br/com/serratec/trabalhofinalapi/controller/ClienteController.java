@@ -12,12 +12,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.serratec.trabalhofinalapi.dto.ClienteRequestDTO;
+import br.com.serratec.trabalhofinalapi.handler.RegistroNaoEncontradoException;
 import br.com.serratec.trabalhofinalapi.model.Cliente;
 import br.com.serratec.trabalhofinalapi.service.ClienteService;
 import jakarta.validation.Valid;
@@ -31,12 +33,19 @@ public class ClienteController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Cliente inserir(@Valid @RequestBody ClienteRequestDTO dto){
+    public Cliente inserir(@Valid @RequestBody ClienteRequestDTO dto,
+            @RequestHeader(value = "Authorization", required = false) String authorization){
+        AuthValidator.validarToken(authorization);
         return service.inserir(dto);
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Cliente> alterar(@RequestBody ClienteRequestDTO dto, @PathVariable Long id){
+    public ResponseEntity<Cliente> alterar(@RequestBody ClienteRequestDTO dto, @PathVariable Long id,
+            @RequestHeader(value = "Authorization", required = false) String authorization){
+        AuthValidator.validarToken(authorization);
+        if (id <= 0) {
+            throw new RegistroNaoEncontradoException("Cliente não encontrado.");
+        }
         return ResponseEntity.ok(service.alterar(id, dto));
     }
 
