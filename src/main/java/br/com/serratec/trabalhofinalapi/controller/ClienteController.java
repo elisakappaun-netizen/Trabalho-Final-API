@@ -1,7 +1,5 @@
 package br.com.serratec.trabalhofinalapi.controller;
 
-import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,7 +36,7 @@ public class ClienteController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Cliente> alterar(@RequestBody ClienteRequestDTO dto, @PathVariable UUID id){
+    public ResponseEntity<Cliente> alterar(@RequestBody ClienteRequestDTO dto, @PathVariable Long id){
         return ResponseEntity.ok(service.alterar(id, dto));
     }
 

@@ -1,5 +1,7 @@
 package br.com.serratec.trabalhofinalapi.model;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,7 +15,7 @@ public class Servico {
     private Long id;
 
     private String descricao;
-    private Double valor;
+    private BigDecimal valor;
     private String tempoEstimado;
 
     public Long getId() {
@@ -32,20 +34,20 @@ public class Servico {
         this.descricao = descricao;
     }
 
-    public Double getValor() {
-        return valor;
-    }
-
-    public void setValor(Double valor) {
-        this.valor = valor;
-    }
-
     public String getTempoEstimado() {
         return tempoEstimado;
     }
 
     public void setTempoEstimado(String tempoEstimado) {
         this.tempoEstimado = tempoEstimado;
+    }
+
+    public BigDecimal getValor() {
+        return valor;
+    }
+
+    public void setValor(BigDecimal valor) {
+        this.valor = valor;
     }
 
 }

@@ -1,30 +1,39 @@
 package br.com.serratec.trabalhofinalapi.model;
 
+import java.math.BigDecimal;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-
+import jakarta.persistence.Table;
 @Entity
+@Table(name = "execucoes_servicos")
+
 public class ExecucaoServico {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Double desconto;
-    private Integer quantidade;
-    private Double subTotal;
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "ordem_servico_id", nullable = false)
+    private OrdemServico ordemServico;
 
-    @ManyToOne
-    @JoinColumn(name = "id_servico")
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "servico_id", nullable = false)
     private Servico servico;
 
-    @ManyToOne
-    @JoinColumn(name = "id_ordem_servico")
-    private OrdemServico ordemServico;
+    private Integer quantidade;
+    private BigDecimal desconto;
+    private BigDecimal subtotal;
+    private BigDecimal valor;
 
     public Long getId() {
         return id;
@@ -34,28 +43,12 @@ public class ExecucaoServico {
         this.id = id;
     }
 
-    public Double getDesconto() {
-        return desconto;
+    public OrdemServico getOrdemServico() {
+        return ordemServico;
     }
 
-    public void setDesconto(Double desconto) {
-        this.desconto = desconto;
-    }
-
-    public Integer getQuantidade() {
-        return quantidade;
-    }
-
-    public void setQuantidade(Integer quantidade) {
-        this.quantidade = quantidade;
-    }
-
-    public Double getSubTotal() {
-        return subTotal = servico.getValor() * quantidade - desconto;
-    }
-
-    public void setSubTotal(Double subTotal) {
-        this.subTotal = subTotal;
+    public void setOrdemServico(OrdemServico ordemServico) {
+        this.ordemServico = ordemServico;
     }
 
     public Servico getServico() {
@@ -66,12 +59,36 @@ public class ExecucaoServico {
         this.servico = servico;
     }
 
-    public OrdemServico getOrdemServico() {
-        return ordemServico;
+    public Integer getQuantidade() {
+        return quantidade;
     }
 
-    public void setOrdemServico(OrdemServico ordemServico) {
-        this.ordemServico = ordemServico;
+    public void setQuantidade(Integer quantidade) {
+        this.quantidade = quantidade;
+    }
+
+    public BigDecimal getDesconto() {
+        return desconto;
+    }
+
+    public void setDesconto(BigDecimal desconto) {
+        this.desconto = desconto;
+    }
+
+    public BigDecimal getSubtotal() {
+        return subtotal;
+    }
+
+    public void setSubtotal(BigDecimal subtotal) {
+        this.subtotal = subtotal;
+    }
+
+    public BigDecimal getValor() {
+        return valor;
+    }
+
+    public void setValor(BigDecimal valor) {
+        this.valor = valor;
     }
 
 }

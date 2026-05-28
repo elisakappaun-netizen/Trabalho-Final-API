@@ -1,54 +1,26 @@
 package br.com.serratec.trabalhofinalapi.dto;
 
-import br.com.serratec.trabalhofinalapi.model.OrdemServico;
-import br.com.serratec.trabalhofinalapi.model.Servico;
+import java.math.BigDecimal;
 
-public class ExecucaoServicoRequestDTO {
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
-    private Double desconto;
-    private Integer quantidade;
-    private Double subTotal;
-    private Servico servico;
-    private OrdemServico ordemServico;
+public record ExecucaoServicoRequestDTO(   
+        @NotNull(message = "ID do serviço")
+        Long servicoId,
 
-    public Double getDesconto() {
-        return desconto;
-    }
+        @NotNull(message = "Quantidade")
+        @Min(value = 1, message = "Quantidade deve ser pelo menos 1")
+        Integer quantidade,
 
-    public void setDesconto(Double desconto) {
-        this.desconto = desconto;
-    }
+        @NotNull(message = "Valor")
+        @DecimalMin(value = "0", message = "Valor não pode ser negativo")
+        BigDecimal valor,
 
-    public Integer getQuantidade() {
-        return quantidade;
-    }
-
-    public void setQuantidade(Integer quantidade) {
-        this.quantidade = quantidade;
-    }
-
-    public Double getSubTotal() {
-        return subTotal;
-    }
-
-    public void setSubTotal(Double subTotal) {
-        this.subTotal = subTotal;
-    }
-
-    public Servico getServico() {
-        return servico;
-    }
-
-    public void setServico(Servico servico) {
-        this.servico = servico;
-    }
-
-    public OrdemServico getOrdemServico() {
-        return ordemServico;
-    }
-
-    public void setOrdemServico(OrdemServico ordemServico) {
-        this.ordemServico = ordemServico;
-    }
+        @NotNull(message = "Desconto")
+        @DecimalMin(value = "0", message = "Desconto não pode ser negativo")
+        BigDecimal desconto
+    ){
 
 }
