@@ -58,7 +58,7 @@ public class ClienteService {
         cliente.setCpf(dto.getCpf());
         cliente.setEndereco(endereco);
 
-        mailConfig.enviarEmail(cliente.toString(),dto.getEmail(),"O seu Cadastro na | Oficina Tech | foi Realizado com Sucesso!");
+       // mailConfig.enviarEmail(cliente.toString(),dto.getEmail(),"O seu Cadastro na | Oficina Tech | foi Realizado com Sucesso!");
 
         return repository.save(cliente);
     }
@@ -95,7 +95,7 @@ public class ClienteService {
             cliente.setCpf(dto.getCpf());
             cliente.setEndereco(endereco);
 
-            mailConfig.enviarEmail(cliente.msgAtualizacao(),dto.getEmail(),"Seu Cadastro na | Oficina Tech | foi Alterado com Sucesso!");
+            //mailConfig.enviarEmail(cliente.msgAtualizacao(),dto.getEmail(),"Seu Cadastro na | Oficina Tech | foi Alterado com Sucesso!");
 
             return repository.save(cliente);
         }
