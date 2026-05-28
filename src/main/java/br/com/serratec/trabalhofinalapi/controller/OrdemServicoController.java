@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.serratec.trabalhofinalapi.dto.OrdemServicoRequestDTO;
 import br.com.serratec.trabalhofinalapi.dto.OrdemServicoResponseDTO;
-import br.com.serratec.trabalhofinalapi.model.Cliente;
 import br.com.serratec.trabalhofinalapi.model.OrdemServico;
 import br.com.serratec.trabalhofinalapi.service.OrdemServicoServices;
 
