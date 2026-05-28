@@ -6,10 +6,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.serratec.trabalhofinalapi.handler.RegistroNaoEncontradoException;
 import br.com.serratec.trabalhofinalapi.model.Servico;
 import br.com.serratec.trabalhofinalapi.service.ServicoService;
 
@@ -22,13 +24,20 @@ public class ServicoController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Servico inserir(@RequestBody Servico servico){
+    public Servico inserir(@RequestBody Servico servico,
+            @RequestHeader(value = "Authorization", required = false) String authorization){
+        AuthValidator.validarToken(authorization);
         return servicoService.inserir(servico);
     }
 
     @PutMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Servico alterar(@RequestBody Servico servico, @PathVariable Long id){
+    public Servico alterar(@RequestBody Servico servico, @PathVariable Long id,
+            @RequestHeader(value = "Authorization", required = false) String authorization){
+        AuthValidator.validarToken(authorization);
+        if (id <= 0) {
+            throw new RegistroNaoEncontradoException("Serviço não encontrado.");
+        }
         return servicoService.alterar(id, servico);
     }
 

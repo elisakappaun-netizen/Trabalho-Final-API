@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,9 @@ import br.com.serratec.trabalhofinalapi.dto.OrdemServicoRequestDTO;
 import br.com.serratec.trabalhofinalapi.dto.OrdemServicoResponseDTO;
 import br.com.serratec.trabalhofinalapi.dto.VeiculoResponseDTO;
 import br.com.serratec.trabalhofinalapi.handler.ClienteException;
+import br.com.serratec.trabalhofinalapi.handler.DadosInvalidosException;
+import br.com.serratec.trabalhofinalapi.handler.DatabaseException;
+import br.com.serratec.trabalhofinalapi.handler.EnumInvalidoException;
 import br.com.serratec.trabalhofinalapi.handler.OrdemServicoException;
 import br.com.serratec.trabalhofinalapi.handler.ServicoException;
 import br.com.serratec.trabalhofinalapi.handler.VeiculoException;
@@ -45,6 +49,7 @@ public class OrdemServicoServices {
         private ServicoRepository servicoRepository;
 
         public OrdemServico inserir(OrdemServicoRequestDTO dto) {
+                validarOrdemServico(dto);
 
                 Cliente cliente = clienteRepository.findById(dto.clienteId())
                                 .orElseThrow(() -> new ClienteException("Cliente não encontrado!"));
@@ -61,6 +66,7 @@ public class OrdemServicoServices {
                 List<ExecucaoServico> execucoes = new ArrayList<>();
 
                 for (ExecucaoServicoRequestDTO execucao : dto.execucoes()) {
+                        validarExecucao(execucao);
 
                         Servico servico = servicoRepository.findById(execucao.servicoId())
                                         .orElseThrow(() -> new ServicoException("Serviço não encontrado!"));
@@ -93,10 +99,16 @@ public class OrdemServicoServices {
 
                 os.setServicos(execucoes);
 
-                return repository.save(os);
+                try {
+                        return repository.save(os);
+                } catch (DataAccessException ex) {
+                        throw new DatabaseException("Erro ao salvar ordem de serviço.");
+                }
         }
 
         public OrdemServico alterar(Long id, OrdemServicoRequestDTO dto) {
+                validarOrdemServico(dto);
+
                 OrdemServico os = repository.findById(id)
                                 .orElseThrow(() -> new OrdemServicoException("Ordem de serviço não encontrada!"));
 
@@ -113,6 +125,7 @@ public class OrdemServicoServices {
                 os.getServicos().clear();
 
                 for (ExecucaoServicoRequestDTO execucao : dto.execucoes()) {
+                        validarExecucao(execucao);
 
                         Servico servico = servicoRepository.findById(execucao.servicoId())
                                         .orElseThrow(() -> new ServicoException("Serviço não encontrado"));
@@ -141,7 +154,11 @@ public class OrdemServicoServices {
                         os.getServicos().add(execucaoServico);
                 }
 
-                return repository.save(os);
+                try {
+                        return repository.save(os);
+                } catch (DataAccessException ex) {
+                        throw new DatabaseException("Erro ao atualizar ordem de serviço.");
+                }
 
         }
 
@@ -186,6 +203,34 @@ public class OrdemServicoServices {
 
         public Page<OrdemServico> listarPorPagina(Pageable pageable) {
                 return repository.findAll(pageable);
+        }
+
+        private void validarOrdemServico(OrdemServicoRequestDTO dto) {
+                if (dto == null) {
+                        throw new DadosInvalidosException("Dados da ordem de serviço não informados.");
+                }
+
+                if (dto.status() == null) {
+                        throw new EnumInvalidoException("Status da ordem de serviço inválido.");
+                }
+
+                if (dto.execucoes() == null || dto.execucoes().isEmpty()) {
+                        throw new DadosInvalidosException("A ordem de serviço deve conter ao menos uma execução.");
+                }
+        }
+
+        private void validarExecucao(ExecucaoServicoRequestDTO execucao) {
+                if (execucao == null) {
+                        throw new DadosInvalidosException("Execução de serviço inválida.");
+                }
+
+                if (execucao.quantidade() == null || execucao.quantidade() <= 0) {
+                        throw new DadosInvalidosException("Quantidade do serviço deve ser maior que zero.");
+                }
+
+                if (execucao.desconto() != null && execucao.desconto().signum() < 0) {
+                        throw new DadosInvalidosException("Desconto não pode ser negativo.");
+                }
         }
 
 }

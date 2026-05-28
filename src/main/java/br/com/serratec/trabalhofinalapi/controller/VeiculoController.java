@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 import br.com.serratec.trabalhofinalapi.dto.VeiculoRequestDTO;
+import br.com.serratec.trabalhofinalapi.handler.RegistroNaoEncontradoException;
 import br.com.serratec.trabalhofinalapi.model.Veiculo;
 import br.com.serratec.trabalhofinalapi.service.VeiculoService;
 
@@ -29,12 +31,19 @@ public class VeiculoController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Veiculo inserir(@RequestBody VeiculoRequestDTO dto) {
+    public Veiculo inserir(@RequestBody VeiculoRequestDTO dto,
+            @RequestHeader(value = "Authorization", required = false) String authorization) {
+        AuthValidator.validarToken(authorization);
         return service.inserirVeiculo(dto);
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Veiculo> alterarVeiculo(@RequestBody VeiculoRequestDTO dto, @PathVariable Long id) {
+    public ResponseEntity<Veiculo> alterarVeiculo(@RequestBody VeiculoRequestDTO dto, @PathVariable Long id,
+            @RequestHeader(value = "Authorization", required = false) String authorization) {
+        AuthValidator.validarToken(authorization);
+        if (id <= 0) {
+            throw new RegistroNaoEncontradoException("Veículo não encontrado.");
+        }
         return ResponseEntity.ok(service.alterarVeiculo(dto, id));
     }
 
