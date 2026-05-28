@@ -38,16 +38,20 @@ public class ClienteService {
         if (optEndereco.isPresent()) {
             endereco = optEndereco.get();
         } else {
-            RestTemplate restTemplate = new RestTemplate();
-            String url = "https://viacep.com.br/ws/" + dto.getCep() + "/json/";
-            Endereco enderecoViaCep = restTemplate.getForObject(url, Endereco.class);
-            if (enderecoViaCep == null) {
-                throw new EnderecoException("Cep não encontrado!");
+            try {
+                RestTemplate restTemplate = new RestTemplate();
+                String url = "https://viacep.com.br/ws/" + dto.getCep() + "/json/";
+                Endereco enderecoViaCep = restTemplate.getForObject(url, Endereco.class);
+                if (enderecoViaCep == null) {
+                    throw new EnderecoException("Cep não encontrado!");
+                }
+
+                enderecoViaCep.setCep(enderecoViaCep.getCep().replaceAll("-", ""));
+
+                endereco = eRepository.save(enderecoViaCep);
+            } catch (Exception e) {
+                throw new EnderecoException("Erro ao consultar o CEP: " + dto.getCep());
             }
-
-            enderecoViaCep.setCep(enderecoViaCep.getCep().replaceAll("-", ""));
-
-            endereco = eRepository.save(enderecoViaCep);
         }
 
         Cliente cliente = new Cliente();
@@ -76,16 +80,20 @@ public class ClienteService {
             if (optEndereco.isPresent()) {
                 endereco = optEndereco.get();
             } else {
-                RestTemplate restTemplate = new RestTemplate();
-                String url = "https://viacep.com.br/ws/" + dto.getCep() + "/json/";
-                Endereco enderecoViaCep = restTemplate.getForObject(url, Endereco.class);
-                if (enderecoViaCep == null) {
-                    throw new EnderecoException("Cep não encontrado!");
+                try {
+                    RestTemplate restTemplate = new RestTemplate();
+                    String url = "https://viacep.com.br/ws/" + dto.getCep() + "/json/";
+                    Endereco enderecoViaCep = restTemplate.getForObject(url, Endereco.class);
+                    if (enderecoViaCep == null) {
+                        throw new EnderecoException("Cep não encontrado!");
+                    }
+
+                    enderecoViaCep.setCep(enderecoViaCep.getCep().replaceAll("-", ""));
+
+                    endereco = eRepository.save(enderecoViaCep);
+                } catch (Exception e) {
+                    throw new EnderecoException("Erro ao consultar o CEP: " + dto.getCep());
                 }
-
-                enderecoViaCep.setCep(enderecoViaCep.getCep().replaceAll("-", ""));
-
-                endereco = eRepository.save(enderecoViaCep);
             }
 
             cliente.setNome(dto.getNome());

@@ -1,14 +1,19 @@
 package br.com.serratec.trabalhofinalapi.service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.com.serratec.trabalhofinalapi.dto.ExecucaoServicoRequestDTO;
 import br.com.serratec.trabalhofinalapi.dto.OrdemServicoRequestDTO;
+import br.com.serratec.trabalhofinalapi.handler.ClienteException;
+import br.com.serratec.trabalhofinalapi.handler.OrdemServicoException;
+import br.com.serratec.trabalhofinalapi.handler.VeiculoException;
 import br.com.serratec.trabalhofinalapi.model.Cliente;
 import br.com.serratec.trabalhofinalapi.model.ExecucaoServico;
 import br.com.serratec.trabalhofinalapi.model.OrdemServico;
@@ -33,30 +38,63 @@ public class OrdemServicoService {
     @Autowired
     private ServicoService servicoService;
 
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_DATE_TIME;
+
     @Transactional
     public OrdemServico inserir(OrdemServicoRequestDTO dto) {
-        Optional<Cliente> optCliente = clienteRepository.findById(dto.id_cliente());
-        Optional<Veiculo> optVeiculo = veiculoRepository.findById(dto.id_veiculo());
-        Veiculo veiculo = new Veiculo();
-        Cliente cliente = new Cliente();
-        if (optVeiculo.isPresent() && optCliente.isPresent()) {
-
-            veiculo = optVeiculo.get();
-            cliente = optCliente.get();
+        LocalDateTime dataAgendamento;
+        try {
+            dataAgendamento = LocalDateTime.parse(dto.dataAgendamento(), FORMATTER);
+        } catch (DateTimeParseException ex) {
+            throw new OrdemServicoException("Data de agendamento inválida. Use o formato ISO-8601: yyyy-MM-dd'T'HH:mm");
         }
+
+        if (dataAgendamento.isBefore(LocalDateTime.now())) {
+            throw new OrdemServicoException("A data de agendamento deve ser no futuro.");
+        }
+
+        if (repository.existsByDataAgendamento(dataAgendamento)) {
+            throw new OrdemServicoException("Horário indisponível. Escolha outro horário.");
+        }
+
+        Cliente cliente = clienteRepository.findById(dto.id_cliente())
+                .orElseThrow(() -> new ClienteException("Cliente não encontrado!"));
+
+        Veiculo veiculo = veiculoRepository.findById(dto.id_veiculo())
+                .orElseThrow(() -> new VeiculoException("Veículo não encontrado!"));
 
         OrdemServico ordemServico = new OrdemServico();
         ordemServico.setCliente(cliente);
         ordemServico.setVeiculo(veiculo);
         ordemServico.setStatus(dto.status());
-        ordemServico = repository.save(ordemServico);
+        ordemServico.setDataAgendamento(dataAgendamento);
 
-        for (ExecucaoServicoRequestDTO execucao : dto.execucoes()) {
-            execucao.setOrdemServico(ordemServico);
+        List<ExecucaoServico> listaExecucoes = new ArrayList<>();
+        if (dto.execucoes() != null) {
+            for (ExecucaoServicoRequestDTO execucaoDto : dto.execucoes()) {
+                var servico = servicoService.buscar(execucaoDto.getServico().getId());
 
-            execucao.setServico(servicoService.buscar(execucao.getServico().getId()));
+                ExecucaoServico execucaoServico = new ExecucaoServico();
+                execucaoServico.setDesconto(execucaoDto.getDesconto() == null ? 0.0 : execucaoDto.getDesconto());
+                execucaoServico.setQuantidade(execucaoDto.getQuantidade() == null ? 1 : execucaoDto.getQuantidade());
+                execucaoServico.setServico(servico);
+                execucaoServico.setOrdemServico(ordemServico);
+                execucaoServico.setSubTotal(servico.getValor() * execucaoServico.getQuantidade() - execucaoServico.getDesconto());
+                listaExecucoes.add(execucaoServico);
+            }
         }
-        return ordemServico;
+
+        ordemServico.setServicos(listaExecucoes);
+        return repository.save(ordemServico);
+    }
+
+    public boolean estaDisponivel(String dataAgendamento) {
+        try {
+            LocalDateTime data = LocalDateTime.parse(dataAgendamento, FORMATTER);
+            return !repository.existsByDataAgendamento(data);
+        } catch (DateTimeParseException ex) {
+            throw new OrdemServicoException("Data de agendamento inválida. Use o formato ISO-8601: yyyy-MM-dd'T'HH:mm");
+        }
     }
 
 }

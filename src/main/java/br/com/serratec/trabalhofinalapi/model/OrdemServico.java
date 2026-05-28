@@ -1,14 +1,19 @@
 package br.com.serratec.trabalhofinalapi.model;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import br.com.serratec.trabalhofinalapi.enums.StatusServico;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Column;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 public class OrdemServico {
@@ -20,8 +25,12 @@ public class OrdemServico {
     private StatusServico status;
     private Double valorTotal;
 
-    @OneToMany
-    private List<ExecucaoServico> servicos;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    @Column(name = "data_agendamento")
+    private LocalDateTime dataAgendamento;
+
+    @OneToMany(mappedBy = "ordemServico", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ExecucaoServico> servicos = new ArrayList<>();
 
     @ManyToOne
     private Cliente cliente;
@@ -46,14 +55,27 @@ public class OrdemServico {
     }
 
     public Double getValorTotal() {
-        for (ExecucaoServico execucaoServico : servicos) {
-            valorTotal += execucaoServico.getSubTotal();
+        double total = 0.0;
+        if (servicos != null) {
+            for (ExecucaoServico execucaoServico : servicos) {
+                if (execucaoServico != null && execucaoServico.getSubTotal() != null) {
+                    total += execucaoServico.getSubTotal();
+                }
+            }
         }
-        return valorTotal;
+        return total;
     }
 
     public void setValorTotal(Double valorTotal) {
         this.valorTotal = valorTotal;
+    }
+
+    public LocalDateTime getDataAgendamento() {
+        return dataAgendamento;
+    }
+
+    public void setDataAgendamento(LocalDateTime dataAgendamento) {
+        this.dataAgendamento = dataAgendamento;
     }
 
     public List<ExecucaoServico> getServicos() {
