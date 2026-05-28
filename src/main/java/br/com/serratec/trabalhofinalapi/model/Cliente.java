@@ -1,7 +1,5 @@
 package br.com.serratec.trabalhofinalapi.model;
 
-import java.util.UUID;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -11,10 +9,9 @@ import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Cliente {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private String nome;
     private String telefone;
@@ -26,11 +23,11 @@ public class Cliente {
     @JoinColumn(name = "id_endereco")
     private Endereco endereco;
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

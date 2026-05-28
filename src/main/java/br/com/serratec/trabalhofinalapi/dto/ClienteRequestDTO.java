@@ -1,7 +1,5 @@
 package br.com.serratec.trabalhofinalapi.dto;
 
-import java.util.UUID;
-
 import org.hibernate.validator.constraints.br.CPF;
 
 import jakarta.persistence.GeneratedValue;
@@ -15,8 +13,8 @@ import jakarta.validation.constraints.Size;
 public class ClienteRequestDTO {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @NotBlank(message = "Nome obrigatório!")
     private String nome;
@@ -42,11 +40,11 @@ public class ClienteRequestDTO {
     public ClienteRequestDTO() {
     }
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
