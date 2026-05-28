@@ -11,7 +11,7 @@ public class MailConfig {
     @Autowired
     private JavaMailSender javaMailSender;
 
-    //@Value("${USUARIO_EMAIL}")
+    @Value("${USUARIO_EMAIL}")
     private String email;
 
     public void enviarEmail(String texto, String para, String assunto){

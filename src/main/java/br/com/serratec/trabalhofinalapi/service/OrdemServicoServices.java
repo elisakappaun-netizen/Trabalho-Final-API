@@ -44,6 +44,9 @@ public class OrdemServicoServices {
         @Autowired
         private ServicoRepository servicoRepository;
 
+        @Autowired
+        private NotificacaoService notificacaoService;
+
         public OrdemServico inserir(OrdemServicoRequestDTO dto) {
 
                 Cliente cliente = clienteRepository.findById(dto.clienteId())
@@ -141,6 +144,8 @@ public class OrdemServicoServices {
                         os.getServicos().add(execucaoServico);
                 }
 
+                String mensagem = "O Status da sua Ordem de serviço Foi Alterado Para: " + dto.status();
+                notificacaoService.enviarNotificacao(mensagem, cliente.getEmail());
                 return repository.save(os);
 
         }
