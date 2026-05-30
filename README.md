@@ -9,8 +9,8 @@
 * Rebeka Cardoso - [GitHub](https://github.com/seu-usuario)
 
 
-* Uma oficina mecânica especializada em manutenção de veículos deseja
-* informatizar seus processos e disponibilizar um sistema capaz de gerenciar
-* clientes, veículos, ordens de serviço e serviços realizados.
-* O sistema deverá ser desenvolvido utilizando Java com Spring Boot seguindo
-* o padrão de arquitetura em camadas.
+# Sistema para Oficina Mecânica
+
+Uma oficina mecânica especializada em manutenção de veículos deseja informatizar seus processos e disponibilizar um sistema capaz de gerenciar clientes, veículos, ordens de serviço e serviços realizados. 
+
+O sistema deverá ser desenvolvido utilizando Java com Spring Boot seguindo o padrão de arquitetura em camadas.
